@@ -4,41 +4,88 @@ const Post = require('../schemas/post')
 const Comment = require("../schemas/comment");
 
 
-// post.js에서 route 되어 들어온 'board/post/:postId/comment/'
+// post.js에서 route 되어 들어온 'board/post/comment/:postId/'
 
 
 //댓글 작성하기
-router.post('/write', async(req,res)=>{
-    const { postId } = req.params;
+// content, name
+router.post('/:postId/write', async(req,res)=>{
+    const {postId} = req.params;
+    const comments = await Comment.find();
+    const comment = comments.filter((cmt)=>cmt.postId === Number(postId))
+    // const comment = comments.map((cmt)=>{return cmt.cmtId})
+    const existsComments = comment.length + 1
+    const today = new Date()
+    const year = today.getFullYear();
+    const month = today.getMonth()+1
+    const day = ('0' + today.getDate()).slice(-2)
+    const time = today.toLocaleTimeString('ko-kr')
+    
+    const {cmtContent} = req.body;
+    const {cmtName} = req.body;
+    const cmtDate = `${year}/${month}/${day} ${time}`
+
+    if (cmtContent === "") {
+        res.status(400).json({ errorMessage: "댓글을 입력해주세요." });
+        return;
+      }
+
+    await Comment.create({
+        postId: postId, 
+        cmtId: existsComments,
+        cmtContent: cmtContent,
+        cmtName: cmtName,
+        cmtDate: cmtDate
+    })
+
     res.json({result: "success"});
 });
 
 
 
 //댓글목록 보기
-router.get('/', (req, res) => {     
-	res.send('댓글 전체목록 보기입니다.');  
+router.get('/:postId', async(req, res) => {  
+    const {postId} = req.params;
+    const comments = await Comment.find();
+    const comment = comments.map((cmt) => {return cmt});
+    const commentMatch = comment.filter((cmt) => cmt.postId ===Number(postId));
+    const commentDate = commentMatch.map((cmt)=>{return cmt.cmtDate})
+
+    let commentSort = commentMatch.sort((a,b) => {
+        if(a.commentDate > b.commentDate) return -1;
+        if(a.commentDate < b.commentDate) return 1;
+        return 0;
+    })
+	res.json({commentSort}) 
 });
 
 
+
 //댓글 수정
-router.put("/", async (req, res) => {
+router.put("/:postId", async (req, res) => {
     const { postId } = req.params;
-    const { password } = req.body;
-    res.json({ success: true });
+    const {cmtId} = req.body;
+    const {cmtContent} = req.body;
+
+    await Comment.updateOne({postId: postId, cmtId:cmtId}, {$set:{cmtContent}})
+
+    res.json({ successMessage: "댓글이 수정되었습니다." });
   });
 
 
 //댓글 삭제
-router.delete('/', async(req,res)=>{
-const {goodsId} = req.params;
+router.delete('/:postId', async(req,res)=>{
+    const {postId} = req.params;
+    const {cmtId} = req.body;
 
-const existsCarts = await Cart.find({goodsId:Number(goodsId)});
-if (existsCarts.length > 0){
-    await Cart.deleteOne({goodsId:Number(goodsId)}) 
-        //혹은 await Cart.deleteOne({ goodsId });
-}
-res.json({result: "success"});
+    const targetPost = await Comment.find({postId:Number(postId)});
+    const comment = targetPost.filter((cmt)=> cmt.cmtId === cmtId)
+    if (comment.length > 0){
+        await Comment.deleteOne({postId:Number(postId), cmtId:cmtId}) 
+    }else {
+        res.status(400).json({errorMessage:"댓글이 없습니다"})
+    }
+    res.json({successMessage: "댓글을 삭제했습니다."});
 });
 
 
