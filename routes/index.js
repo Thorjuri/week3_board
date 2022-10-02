@@ -12,8 +12,8 @@ router.use("/post", [postRouter]);
 // 게시글 목록 전체 불러오기 (localhost:3000/board/list) --- 완료
 router.get('/list', async(req, res) => {   
     const posts = await Post.find();
-    const post = posts.map((post)=> {return post})
-    const postDate = posts.map((post)=>{return post.postDate})
+    const post = posts.map((post)=> {return post});
+    const postDate = posts.map((post)=>{return post.postDate});
 
     let postSort = post.sort((a,b) => {
         if(a.postDate > b.postDate) return -1;
@@ -21,7 +21,7 @@ router.get('/list', async(req, res) => {
         return 0;
     })
     
-    console.log(postSort)
+    console.log(postSort, postDate)
 
 	res.json({postSort});  
 });

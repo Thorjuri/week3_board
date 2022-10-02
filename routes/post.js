@@ -34,14 +34,21 @@ router.put("/:postId", async (req, res) => {
     const { postContent} = req.body;
     const existsPost = await Post.find({postId:Number(postId)});
     const password = existsPost[0].password  //게시글 1개가 배열로, 해당 객체의 password 속성
+    // const today = new Date()
+    // const year = today.getFullYear();
+    // const month = today.getMonth()+1
+    // const day = ('0' + today.getDate()).slice(-2)
+    // const time = today.toLocaleTimeString('ko-kr')
+    // const postDate = `${year}/${month}/${day} ${time}`  //수정 시 날짜도 같이 수정해야 할 경우 활용
+
    
     if (Number(inputPassword) === password){
         await Post.updateOne({postId: postId},{$set: {postContent}})
+        res.json({successMessage: "게시글이 수정되었습니다." });
     }else{
         res.status(400).json({errorMessage: "비밀번호가 다릅니다."})
     }
     
-    res.json({successMessage: "게시글이 수정되었습니다." });
   });
 
 
@@ -51,12 +58,14 @@ router.delete('/:postId', async(req,res)=>{
     const { inputPassword } = req.body;
     const existsPost = await Post.find({postId:Number(postId)});
     const password = existsPost[0].password  //게시글 1개가 배열로, 해당 객체의 password 속성
-
-    if (existsPost.length > 0 && inputPassword===password){
+    // existsPost.length > 0 && 
+    if (inputPassword===password){
         await Post.deleteOne({postId: Number(postId)}) 
-            //혹은 await Cart.deleteOne({ goodsId });
+        res.json({successMessage: "게시글이 삭제되었습니다."});
+    } else{
+        res.json({errorMessage: "비밀번호가 틀립니다."})
     }
-    res.json({successMessage: "게시글이 삭제되었습니다."});
+    
 });
 
 

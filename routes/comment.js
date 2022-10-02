@@ -44,6 +44,7 @@ router.post('/:postId/write', async(req,res)=>{
 
 
 //댓글목록 보기
+//게시글이든 댓글이든, Id는 작성 순서대로 +1씩 되게 되있음. 즉 Id 순서 = 시간순서. Id로 내림차순 정렬 함.
 router.get('/:postId', async(req, res) => {  
     const {postId} = req.params;
     const comments = await Comment.find();
@@ -52,9 +53,10 @@ router.get('/:postId', async(req, res) => {
     const commentDate = commentMatch.map((cmt)=>{return cmt.cmtDate})
 
     let commentSort = commentMatch.sort((a,b) => {
-        if(a.commentDate > b.commentDate) return -1;
-        if(a.commentDate < b.commentDate) return 1;
-        return 0;
+        return  b.cmtId - a.cmtId
+        // if(a.commentDate > b.commentDate) return -1;
+        // if(a.commentDate < b.commentDate) return 1;
+        // return 0;
     })
 	res.json({commentSort}) 
 });
