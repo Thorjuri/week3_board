@@ -4,6 +4,7 @@ Node.js 와 express로 구축한 첫 서버이자 첫 백엔드 코드. \
 코드 양식이나 수준이 부끄러울만큼 빈약하고 아키텍쳐도 없지만 그저 내가 만든 서버가 실행되고 api가 작동한다는 사실이 \
 너무도 신기하고 기뻤다. 빨리 더 많이 배우고 구현하고 싶다.
 <hr>
+
 22.10.01
 1. schemas에 unique 해제 및 mongodb의 인덱스 삭제. Mongo Server Error: E11000 duplicate key error 오류 해결
 2. 모든 기능 정상 구동 확인 완료. 
